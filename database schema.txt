@@ -8,15 +8,15 @@
     - Full Name
     - Phone
     - Email Address
-    - Location enum[]
-    - Business Type enum[]
+    - Location enum[abuja, Kaduna, Kano, LAgos, NAssarawa, Ibadan]
+    - Business Type enum[Individual Distributor]
     - Message
 
 * Sponsors
     - Full Name
     - Email Address
     - Phone Number
-    - Distributed to: enum[]
+    - Distributed to: enum[mosques, churches, orphanages, hospitals, Ramadan iftar programs, other]
     - Selected Plan
     - Amount
 

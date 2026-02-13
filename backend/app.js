@@ -21,6 +21,14 @@ app.get('/admin', (req, res) => {
   });
 });
 
+app.get('/sponsors', (req, res) => {
+  const sql = "SELECT * FROM sponsors";
+  db.query(sql, (err, data) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(data);
+  });
+});
+
 app.post('/api/contact', (req, res) => {
   const { name, email, message } = req.body;
   console.log('Received contact form submission:', { name, email, message });

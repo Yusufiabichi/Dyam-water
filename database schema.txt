@@ -1,0 +1,28 @@
+* Admin
+    - Email
+    - Password
+    - Username
+
+
+* Distributor
+    - Full Name
+    - Phone
+    - Email Address
+    - Location enum[]
+    - Business Type enum[]
+    - Message
+
+* Sponsors
+    - Full Name
+    - Email Address
+    - Phone Number
+    - Distributed to: enum[]
+    - Selected Plan
+    - Amount
+
+* Message
+    - Full Name
+    - Email Address
+    - Phone
+    - Partnership Type enum[]
+    - Message

@@ -1,6 +1,6 @@
 
-import { useState } from 'react';
-import { sponsorsData, distributeToOptions } from '../../../mocks/sponsors';
+import { useEffect, useState } from 'react';
+import { distributeToOptions } from '../../../mocks/sponsors';
 
 interface Sponsor {
   id: string;
@@ -20,7 +20,89 @@ interface Sponsor {
 }
 
 const AdminSponsorsPage = () => {
-  const [sponsors, setSponsors] = useState<Sponsor[]>(sponsorsData as Sponsor[]);
+  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchSponsors = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch('http://localhost:4000/api/sponsors');
+        if (!res.ok) throw new Error(`Status ${res.status}`);
+        const rows = await res.json();
+
+        const mapped: Sponsor[] = (rows || []).map((r: any) => ({
+          id: String(r.id ?? r.sponsor_id ?? r.id),
+          name: r.full_name || r.name || '',
+          email: r.email || r.email_address || '',
+          phone: r.phone_number || r.phone || '',
+          company: r.company || '',
+          planName: r.selected_plan || r.planName || r.plan || 'Basic Support',
+          amount: Number(r.amount) || 0,
+          distributeTo: r.distributed_to || r.distributeTo || 'Other',
+          totalDonations: 0,
+          totalAmount: 0,
+          status: 'active',
+          joinedDate: r.created_at ? String(r.created_at).split('T')[0] : (new Date().toISOString().split('T')[0]),
+          lastDonationDate: r.paid_at || r.lastDonationDate || null,
+          notes: r.notes || ''
+        }));
+
+        setSponsors(mapped);
+        // Fetch transactions to compute totals
+        try {
+          const tRes = await fetch('http://localhost:4000/api/transactions');
+          if (tRes.ok) {
+            const txRows = await tRes.json();
+            const successful = (txRows || []).filter((t: any) => (t.status || '').toLowerCase() === 'success');
+
+            // overall totals
+            const overallTotalRaised = successful.reduce((sum: number, t: any) => sum + (Number(t.amount) || 0), 0);
+            const overallTotalDonations = successful.length;
+
+            // per-sponsor aggregates
+            const sponsorAgg = new Map<string, { count: number; amount: number }>();
+            for (const t of successful) {
+              const sid = String(t.sponsor_id ?? t.sponsorId ?? t.sponsor ?? '');
+              if (!sid) continue;
+              const curr = sponsorAgg.get(sid) || { count: 0, amount: 0 };
+              curr.count += 1;
+              curr.amount += Number(t.amount) || 0;
+              sponsorAgg.set(sid, curr);
+            }
+
+            // merge aggregates into sponsors
+            setSponsors((prev) => prev.map((s) => {
+              const agg = sponsorAgg.get(s.id) || { count: 0, amount: 0 };
+              return {
+                ...s,
+                totalDonations: agg.count,
+                totalAmount: agg.amount
+              };
+            }));
+
+            // update stats object values (local variables will read from sponsors state at render)
+            // store overall totals in a ref-like state if needed
+            // For now, set an ephemeral variable on window for debugging (no-op in prod)
+            // eslint-disable-next-line no-console
+            console.log('Sponsors totals', { overallTotalRaised, overallTotalDonations });
+          }
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.error('Failed to load transactions for sponsor aggregates', e);
+        }
+      } catch (e: any) {
+        // eslint-disable-next-line no-console
+        console.error('Failed to load sponsors', e);
+        setError(e?.message || 'Failed to load sponsors');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSponsors();
+  }, []);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterDistributeTo, setFilterDistributeTo] = useState<string>('all');
@@ -296,9 +378,7 @@ const AdminSponsorsPage = () => {
                 <th className="text-left px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Distribute To
                 </th>
-                <th className="text-left px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Donations
-                </th>
+                
                 <th className="text-left px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Status
                 </th>
@@ -325,12 +405,7 @@ const AdminSponsorsPage = () => {
                   <td className="px-6 py-4">
                     {getDistributeBadge(sponsor.distributeTo)}
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm">
-                      <p className="font-medium text-gray-900">{sponsor.totalDonations} donations</p>
-                      <p className="text-xs text-gray-500">₦{sponsor.totalAmount.toLocaleString()}</p>
-                    </div>
-                  </td>
+                  
                   <td className="px-6 py-4">{getStatusBadge(sponsor.status)}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-end gap-2">

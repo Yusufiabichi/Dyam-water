@@ -1,9 +1,9 @@
 
-import { useState } from 'react';
-import { distributorsData, regionsData } from '../../../mocks/distributors';
+import { useEffect, useState } from 'react';
+import { regionsData } from '../../../mocks/distributors';
 
 interface Distributor {
-  id: string;
+  id: string | number;
   name: string;
   contactPerson: string;
   phone: string;
@@ -17,7 +17,9 @@ interface Distributor {
 }
 
 const AdminDistributorsPage = () => {
-  const [distributors, setDistributors] = useState<Distributor[]>(distributorsData as Distributor[]);
+  const [distributors, setDistributors] = useState<Distributor[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterRegion, setFilterRegion] = useState<string>('all');
@@ -33,6 +35,41 @@ const AdminDistributorsPage = () => {
     address: '',
     status: 'pending' as 'active' | 'inactive' | 'pending',
   });
+
+  useEffect(() => {
+    const fetchDistributors = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch('http://localhost:4000/api/distributors');
+        if (!res.ok) throw new Error(`Status ${res.status}`);
+        const rows = await res.json();
+
+        const mapped: Distributor[] = (rows || []).map((r: any) => ({
+          id: String(r.id),
+          name: r.full_name || '',
+          contactPerson: '', // Not in database schema
+          phone: r.phone || '',
+          email: r.email || '',
+          region: r.location || '',
+          address: r.business_type || '',
+          status: 'active' as const, // Default to active for all fetched records
+          joinedDate: r.created_at ? String(r.created_at).split('T')[0] : (new Date().toISOString().split('T')[0]),
+          totalOrders: 0,
+          lastOrderDate: null,
+        }));
+
+        setDistributors(mapped);
+      } catch (e: any) {
+        // eslint-disable-next-line no-console
+        console.error('Failed to load distributors', e);
+        setError(e?.message || 'Failed to load distributors');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDistributors();
+  }, []);
 
   const filteredDistributors = distributors.filter((dist) => {
     const matchesSearch =
@@ -243,10 +280,23 @@ const AdminDistributorsPage = () => {
         </div>
       </div>
 
+      {/* Error Message */}
+      {error && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-700 text-sm">{error}</p>
+        </div>
+      )}
+
       {/* Distributors Table */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        {loading ? (
+          <div className="p-8 text-center">
+            <p className="text-gray-500">Loading distributors...</p>
+          </div>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
                 <th className="text-left px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -311,7 +361,7 @@ const AdminDistributorsPage = () => {
                         <i className="ri-edit-line"></i>
                       </button>
                       <button
-                        onClick={() => handleDeleteDistributor(distributor.id)}
+                        onClick={() => handleDeleteDistributor(String(distributor.id))}
                         className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                         title="Delete"
                       >
@@ -322,17 +372,19 @@ const AdminDistributorsPage = () => {
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+           </table>
+            </div>
 
-        {filteredDistributors.length === 0 && (
-          <div className="text-center py-12">
+            {filteredDistributors.length === 0 && (
+              <div className="text-center py-12">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <i className="ri-truck-line text-2xl text-gray-400"></i>
             </div>
             <p className="text-gray-500 font-medium">No distributors found</p>
             <p className="text-gray-400 text-sm mt-1">Try adjusting your search or filters</p>
-          </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 

@@ -37,9 +37,9 @@ const AdminSidebar = ({ isOpen, onClose }: AdminSidebarProps) => {
       icon: 'ri-exchange-dollar-line',
     },
     {
-      name: 'Settings',
-      path: '/admin/settings',
-      icon: 'ri-settings-3-line',
+      name: 'Messages',
+      path: '/admin/messages',
+      icon: 'ri-message-3-line',
     },
   ];
 

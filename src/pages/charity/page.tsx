@@ -123,17 +123,20 @@ const CharityPage = () => {
     setSubmitStatus('idle');
 
     try {
-      const formDataToSend = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        formDataToSend.append(key, value);
-      });
+      // normalize frontend keys to backend expected keys
+      const payload = {
+        full_name: formData.name,
+        email: formData.email,
+        phone_number: formData.phone,
+        distributed_to: formData.distributeTo,
+        selected_plan: formData.plan,
+        amount: Number(formData.amount) || 0,
+      };
 
-      const response = await fetch('https://readdy.ai/api/form/d65ch670ioc4omtka9hg', {
+      const response = await fetch('http://localhost:4000/api/sponsors/', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams(formDataToSend as any).toString(),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -772,7 +775,7 @@ const CharityPage = () => {
                     <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                       <p className="text-green-700">
                         <i className="ri-checkbox-circle-fill mr-2"></i>
-                        Thank you for your generous sponsorship! We&apos;ll contact you shortly with payment details.
+                        Thank you for your generous sponsorship! continue to make your payment securely.
                       </p>
                     </div>
                   )}
@@ -795,7 +798,7 @@ const CharityPage = () => {
                   </button>
 
                   <p className="text-sm text-gray-600 text-center mt-4">
-                    You will receive payment instructions via email after submission
+                    When payment is confirmed, you will receive an email confirmation after submission.
                   </p>
                 </form>
               </div>

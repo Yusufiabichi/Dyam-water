@@ -28,18 +28,29 @@ const DistributionPage = () => {
     setSubmitStatus('idle');
 
     try {
-      const formDataToSend = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        formDataToSend.append(key, value);
-      });
+      // Map frontend field names to backend expected field names
+      const payload = {
+        full_name: formData.fullName,
+        phone: formData.phone,
+        email_address: formData.email,
+        location: formData.location,
+        business_type: formData.businessType,
+        message: formData.message || '',
+      };
 
-      const response = await fetch('https://readdy.ai/api/form/d65cgpn0ioc4omtka9gg', {
+      console.log('Submitting distributor form:', payload);
+
+      const response = await fetch('http://localhost:4000/api/distributors', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
         },
-        body: new URLSearchParams(formDataToSend as any).toString(),
+        body: JSON.stringify(payload),
       });
+
+      console.log('Response status:', response.status);
+      const responseData = await response.json();
+      console.log('Response data:', responseData);
 
       if (response.ok) {
         setSubmitStatus('success');
@@ -52,9 +63,11 @@ const DistributionPage = () => {
           message: '',
         });
       } else {
+        console.error('Form submission failed:', responseData);
         setSubmitStatus('error');
       }
     } catch (error) {
+      console.error('Form submission error:', error);
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);

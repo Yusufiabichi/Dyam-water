@@ -1,29 +1,171 @@
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { mockTransactions } from '../../../mocks/transactions';
+
+type FrontTxn = {
+  id: number | string;
+  reference?: string;
+  donorName?: string;
+  email?: string;
+  sponsor_id?: number;
+  amount: number;
+  plan?: string;
+  status?: string;
+  date?: string;
+};
 
 const AdminDashboardPage = () => {
+  const [transactions, setTransactions] = useState<FrontTxn[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch('http://localhost:4000/api/transactions');
+        if (!res.ok) throw new Error(`Status ${res.status}`);
+        const rows = await res.json();
+
+        // Map backend rows to frontend transaction shape
+        const extractNameEmail = (obj: any) => {
+          const result = { name: '', email: '' };
+          if (!obj) return result;
+
+          const nameKeys = ['name', 'full_name', 'fullName', 'donorName', 'donor_name', 'first_name', 'firstname'];
+          const emailKeys = ['email', 'email_address', 'donor_email', 'payer_email', 'customer_email'];
+
+          const findInObject = (o: any) => {
+            if (!o || typeof o !== 'object') return;
+            for (const k of nameKeys) {
+              if (k in o && o[k]) {
+                result.name = o[k];
+                break;
+              }
+            }
+            for (const k of emailKeys) {
+              if (k in o && o[k]) {
+                result.email = o[k];
+                break;
+              }
+            }
+            // check nested objects if not found
+            for (const v of Object.values(o)) {
+              if ((result.name && result.email) || typeof v !== 'object' || !v) continue;
+              findInObject(v);
+            }
+          };
+
+          findInObject(obj);
+          return result;
+        };
+
+        const mapped: FrontTxn[] = (rows || []).map((r: any) => {
+          let donorName = '';
+          let email = '';
+
+          if (r.donor_information) {
+            try {
+              const parsed = typeof r.donor_information === 'string'
+                ? JSON.parse(r.donor_information)
+                : r.donor_information;
+
+              if (typeof parsed === 'string') {
+                donorName = parsed;
+              } else {
+                const res = extractNameEmail(parsed);
+                donorName = res.name || '';
+                email = res.email || '';
+              }
+            } catch (e) {
+              donorName = typeof r.donor_information === 'string' ? r.donor_information : '';
+            }
+          }
+
+          // fallback to other possible top-level columns
+          donorName = donorName || r.donorName || r.donor_name || r.name || r.full_name || '';
+          email = email || r.email || r.email_address || r.donor_email || r.payer_email || '';
+
+          return {
+            id: r.id,
+            reference: r.reference,
+            donorName: donorName,
+            email: email,
+            amount: Number(r.amount) || 0,
+            plan: r.plan || r.planName || '',
+            status: (r.status || '').toLowerCase(),
+            sponsor_id: r.sponsor_id,
+            date: r.paid_at || r.date_time || r.date || r.created_at || ''
+          };
+        });
+
+        setTransactions(mapped);
+
+        // If transactions reference sponsors but lack donor info, fetch sponsor details
+        const sponsorIds = Array.from(new Set(mapped
+          .filter((t: any) => (!t.donorName || t.donorName === '') && (t.sponsor_id != null))
+          .map((t: any) => t.sponsor_id)
+        ));
+
+        if (sponsorIds.length) {
+          try {
+            const sponsorFetches = sponsorIds.map((id) =>
+              fetch(`http://localhost:4000/api/sponsors/${id}`).then((r) => r.ok ? r.json() : null).catch(() => null)
+            );
+
+            const sponsors = await Promise.all(sponsorFetches);
+            const sponsorMap = new Map<number, any>();
+            sponsors.forEach((s) => { if (s && s.id) sponsorMap.set(Number(s.id), s); });
+
+            setTransactions((prev) => prev.map((tx) => {
+              if ((!tx.donorName || tx.donorName === '') && tx.sponsor_id && sponsorMap.has(Number(tx.sponsor_id))) {
+                const s = sponsorMap.get(Number(tx.sponsor_id));
+                return {
+                  ...tx,
+                  donorName: tx.donorName || s.full_name || s.name || '',
+                  email: tx.email || s.email || ''
+                };
+              }
+              return tx;
+            }));
+          } catch (e) {
+            // ignore enrichment errors
+            // eslint-disable-next-line no-console
+            console.error('Sponsor enrichment failed', e);
+          }
+        }
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('Failed to load transactions:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTransactions();
+  }, []);
+
   // Calculate real stats from transactions
-  const successfulTransactions = mockTransactions.filter(txn => txn.status === 'success');
-  const totalRevenue = successfulTransactions.reduce((sum, txn) => sum + txn.amount, 0);
+  const successfulTransactions = transactions.filter(txn => txn.status === 'success');
+  const totalRevenue = successfulTransactions.reduce((sum, txn) => sum + (txn.amount || 0), 0);
   const uniqueSponsors = new Set(successfulTransactions.map(txn => txn.email)).size;
-  
+
   // Get current month transactions
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
   const monthlyTransactions = successfulTransactions.filter(txn => {
-    const txnDate = new Date(txn.date);
+    const txnDate = new Date(txn.date || '');
     return txnDate.getMonth() === currentMonth && txnDate.getFullYear() === currentYear;
   });
-  const monthlyRevenue = monthlyTransactions.reduce((sum, txn) => sum + txn.amount, 0);
+  const monthlyRevenue = monthlyTransactions.reduce((sum, txn) => sum + (txn.amount || 0), 0);
 
   // Calculate plan performance
-  const planStats = mockTransactions.reduce((acc, txn) => {
+  const planStats = transactions.reduce((acc, txn) => {
     if (txn.status === 'success') {
-      if (!acc[txn.plan]) {
-        acc[txn.plan] = { count: 0, revenue: 0 };
+      const plan = txn.plan || 'Unknown';
+      if (!acc[plan]) {
+        acc[plan] = { count: 0, revenue: 0 };
       }
-      acc[txn.plan].count += 1;
-      acc[txn.plan].revenue += txn.amount;
+      acc[plan].count += 1;
+      acc[plan].revenue += txn.amount || 0;
     }
     return acc;
   }, {} as Record<string, { count: number; revenue: number }>);
@@ -79,9 +221,9 @@ const AdminDashboardPage = () => {
     );
   };
 
-  // Get recent 5 transactions
-  const recentTransactions = [...mockTransactions]
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  // Get recent 5 transactions from backend-fetched data
+  const recentTransactions = [...transactions]
+    .sort((a, b) => new Date(b.date || '').getTime() - new Date(a.date || '').getTime())
     .slice(0, 5);
 
   const getStatusColor = (status: string) => {

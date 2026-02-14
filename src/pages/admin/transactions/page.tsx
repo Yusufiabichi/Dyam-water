@@ -1,10 +1,10 @@
-import { useState, useMemo } from 'react';
-import { mockTransactions } from '../../../mocks/transactions';
+import { useState, useMemo, useEffect } from 'react';
 
 interface Transaction {
   id: string;
   reference: string;
   donorName: string;
+  sponsorName: string;
   email: string;
   phone: string;
   amount: number;
@@ -15,8 +15,71 @@ interface Transaction {
   currency: string;
 }
 
+const extractNameEmail = (donorInfo: any): { name: string; email: string } => {
+  if (typeof donorInfo === 'string') {
+    try {
+      const parsed = JSON.parse(donorInfo);
+      return {
+        name: parsed.name || parsed.full_name || parsed.donorName || '',
+        email: parsed.email || parsed.email_address || ''
+      };
+    } catch (e) {
+      return { name: donorInfo, email: '' };
+    }
+  }
+  return {
+    name: donorInfo?.name || donorInfo?.full_name || donorInfo?.donorName || '',
+    email: donorInfo?.email || donorInfo?.email_address || ''
+  };
+};
+
 export default function TransactionsPage() {
-  const [transactions] = useState<Transaction[]>(mockTransactions);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      setLoading(true);
+      try {
+        // Fetch transactions and sponsors
+        const txnRes = await fetch('http://localhost:4000/api/transactions');
+        if (!txnRes.ok) throw new Error(`Failed to fetch transactions: ${txnRes.status}`);
+        const txnRows = await txnRes.json();
+
+        const sponsorRes = await fetch('http://localhost:4000/api/sponsors');
+        const sponsors = sponsorRes.ok ? await sponsorRes.json() : [];
+        const sponsorMap = new Map(sponsors.map((s: any) => [s.id, s.full_name || '']));
+
+        const mapped = (txnRows || []).map((row: any) => {
+          const { name, email } = extractNameEmail(row.donor_information);
+          const sponsorName = sponsorMap.get(row.sponsor_id) || '';
+          return {
+            id: String(row.id),
+            reference: row.reference || '',
+            donorName: name,
+            sponsorName: sponsorName,
+            email: email,
+            phone: '',
+            amount: Number(row.amount) || 0,
+            plan: row.plan || '',
+            status: (row.status || 'pending') as 'success' | 'pending' | 'failed',
+            date: row.date_time ? new Date(row.date_time).toISOString() : new Date().toISOString(),
+            paymentMethod: row.payment_method || 'Card',
+            currency: 'NGN'
+          };
+        });
+        setTransactions(mapped);
+        setError(null);
+      } catch (e: any) {
+        console.error('Failed to load transactions', e);
+        setError(e?.message || 'Failed to load transactions');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTransactions();
+  }, []);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [planFilter, setPlanFilter] = useState<string>('all');
@@ -228,11 +291,24 @@ export default function TransactionsPage() {
         </div>
       </div>
 
+      {/* Error Message */}
+      {error && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg mb-6">
+          <p className="text-red-700 text-sm">{error}</p>
+        </div>
+      )}
+
       {/* Transactions Table */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+        {loading ? (
+          <div className="p-8 text-center">
+            <p className="text-gray-500">Loading transactions...</p>
+          </div>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Reference</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Donor</th>
@@ -255,7 +331,8 @@ export default function TransactionsPage() {
                   <td className="px-6 py-4">
                     <div>
                       <p className="text-sm font-medium text-gray-900">{txn.donorName}</p>
-                      <p className="text-xs text-gray-500">{txn.email}</p>
+                      <p className="text-xs text-gray-600 mt-0.5">{txn.sponsorName}</p>
+                      <p className="text-xs text-gray-400">{txn.email}</p>
                     </div>
                   </td>
                   <td className="px-6 py-4">
@@ -285,44 +362,46 @@ export default function TransactionsPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-            <button
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-            >
-              Previous
-            </button>
-            
-            <div className="flex items-center gap-2">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
-                    currentPage === page
-                      ? 'bg-teal-600 text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
+              </table>
             </div>
 
-            <button
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-              disabled={currentPage === totalPages}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-            >
-              Next
-            </button>
-          </div>
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                >
+                  Previous
+                </button>
+                
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
+                        currentPage === page
+                          ? 'bg-teal-600 text-white'
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+                </div>
+
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 

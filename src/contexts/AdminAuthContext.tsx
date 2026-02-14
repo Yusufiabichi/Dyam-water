@@ -18,7 +18,7 @@ const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefin
 
 // Demo credentials - In production, this would be handled by Supabase
 const DEMO_ADMIN = {
-  email: 'admin@dyamwater.com',
+  email: 'dev@dyamwater.com',
   password: 'admin123',
   name: 'DYAM Admin',
 };

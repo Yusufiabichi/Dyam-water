@@ -19,7 +19,7 @@ const AdminDistributorsPage = lazy(() => import('../pages/admin/distributors/pag
 const AdminCharityPlansPage = lazy(() => import('../pages/admin/charity-plans/page'));
 const AdminSponsorsPage = lazy(() => import('../pages/admin/sponsors/page'));
 const AdminTransactionsPage = lazy(() => import('../pages/admin/transactions/page'));
-const AdminSettingsPage = lazy(() => import('../pages/admin/settings/page'));
+const AdminMessagesPage = lazy(() => import('../pages/admin/messages/page'));
 
 // Loading component for Suspense
 const PageLoader = () => (
@@ -116,10 +116,10 @@ const routes: RouteObject[] = [
         ),
       },
       {
-        path: 'settings',
+        path: 'messages',
         element: (
           <Suspense fallback={<PageLoader />}>
-            <AdminSettingsPage />
+            <AdminMessagesPage />
           </Suspense>
         ),
       },

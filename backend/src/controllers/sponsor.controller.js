@@ -1,9 +1,29 @@
 import db from '../config/db.js';
 
 export const createSponsor = (req, res) => {
-  const { full_name, email, phone_number, distributed_to, selected_plan, amount } = req.body;
+  // Accept both backend-expected and frontend payload keys
+  const {
+    full_name,
+    name,
+    email,
+    email_address,
+    phone_number,
+    phone,
+    distributed_to,
+    distributeTo,
+    selected_plan,
+    planName,
+    amount
+  } = req.body;
 
-  if (!full_name || !email || !phone_number || !distributed_to || !selected_plan || amount == null) {
+  const fullName = full_name ?? name ?? null;
+  const emailAddr = email ?? email_address ?? null;
+  const phoneNumber = phone_number ?? phone ?? null;
+  const distributedTo = distributed_to ?? distributeTo ?? null;
+  const selectedPlan = selected_plan ?? planName ?? null;
+  const sponsorAmount = amount ?? null;
+
+  if (!fullName || !emailAddr || !phoneNumber || !distributedTo || !selectedPlan || sponsorAmount == null) {
     return res.status(400).json({ message: 'Missing required sponsor fields' });
   }
 
@@ -14,20 +34,21 @@ export const createSponsor = (req, res) => {
 
   db.query(
     query,
-    [full_name, email, phone_number, distributed_to, selected_plan, amount],
+    [fullName, emailAddr, phoneNumber, distributedTo, selectedPlan, sponsorAmount],
     (err, result) => {
       if (err) {
+        console.error('Failed to create sponsor:', err);
         return res.status(500).json({ message: 'Failed to create sponsor' });
       }
 
       return res.status(201).json({
         id: result.insertId,
-        full_name,
-        email,
-        phone_number,
-        distributed_to,
-        selected_plan,
-        amount
+        full_name: fullName,
+        email: emailAddr,
+        phone_number: phoneNumber,
+        distributed_to: distributedTo,
+        selected_plan: selectedPlan,
+        amount: sponsorAmount
       });
     }
   );

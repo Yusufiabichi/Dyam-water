@@ -10,7 +10,7 @@ const pageTitles: Record<string, string> = {
   '/admin/content': 'Content Management',
   '/admin/charity-plans': 'Charity Plans',
   '/admin/transactions': 'Transactions',
-  '/admin/settings': 'Settings',
+  '/admin/messages': 'Messages',
 };
 
 const AdminLayout = () => {

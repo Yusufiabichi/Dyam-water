@@ -9,7 +9,7 @@
     - Phone
     - Email Address
     - Location enum[abuja, Kaduna, Kano, LAgos, NAssarawa, Ibadan]
-    - Business Type enum[Individual Distributor]
+    - Business Type: enum[Individual Distributor, Retail Store, Corporate Buyer, Event Organizer, Institution, Other]
     - Message
 
 * Sponsors
@@ -20,9 +20,36 @@
     - Selected Plan
     - Amount
 
+    INSERT INTO sponsors 
+    (full_name, email, phone_number, distributed_to, selected_plan, amount)
+    VALUES
+    ('Aisha Bello', 'aisha.bello@email.com', '+2348012345678', 'mosques', 'Gold Plan', 500000.00),
+
+    ('Chinedu Okafor', 'chinedu.okafor@email.com', '+2348098765432', 'orphanages', 'Silver Plan', 250000.00),
+
+    ('Fatima Ibrahim', 'fatima.ibrahim@email.com', '+2348031122334', 'Ramadan iftar programs', 'Platinum Plan', 1000000.00),
+
+    ('Emmanuel Adeyemi', 'emmanuel.adeyemi@email.com', '+2348076543210', 'churches', 'Bronze Plan', 150000.00),
+
+    ('Grace Nwosu', 'grace.nwosu@email.com', '+2348056677889', 'hospitals', 'Gold Plan', 400000.00),
+
+    ('Abdulrahman Musa', 'abdulrahman.musa@email.com', '+2348022233445', 'other', 'Custom Plan', 300000.00);
+
+
 * Message
     - Full Name
     - Email Address
     - Phone
-    - Partnership Type enum[]
+    - Partnership Type enum[Distributor, Corporate Partner, Institution, Chairity Sponsor, General Inquiry]
     - Message
+
+
+* Transactions
+    - Reference
+    - Donor Information
+    - Plan
+    - Amount
+    - Status enum[Success, Pending, Failed]
+    - Date & Time
+    - Transaction ID
+    - Payment Method

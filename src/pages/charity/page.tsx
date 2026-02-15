@@ -457,7 +457,9 @@ const CharityPage = () => {
                   >
                     <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-6">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-green-100 text-sm font-medium">{index + 1}️⃣</span>
+                        <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                          <span className="text-white text-md font-bold">{index + 1}️</span>
+                        </div>
                         <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
                           <i className={`${plan.icon} text-white text-xl`}></i>
                         </div>
@@ -520,7 +522,9 @@ const CharityPage = () => {
                         </div>
                       )}
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-amber-100 text-sm font-medium">{index + 4}️⃣</span>
+                        <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                          <span className="text-white text-md font-bold">{index + 4}️</span>
+                        </div>
                         <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
                           <i className={`${plan.icon} text-white text-xl`}></i>
                         </div>
@@ -585,7 +589,9 @@ const CharityPage = () => {
                         </div>
                       )}
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-charity-200 text-sm font-medium">{index + 7}️⃣</span>
+                        <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                          <span className="text-white text-md font-bold">{index + 7}️</span>
+                        </div>
                         <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
                           <i className={`${plan.icon} text-white text-xl`}></i>
                         </div>

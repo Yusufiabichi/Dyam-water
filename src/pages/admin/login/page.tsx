@@ -54,7 +54,7 @@ const AdminLoginPage = () => {
         {/* Logo */}
         <div className="text-center mb-8">
           <img
-            src="https://public.readdy.ai/ai/img_res/0567d353-d7a5-46dc-8fa1-bf10faa1ffe1.png"
+            src="./dyam-logo-white.png"
             alt="DYAM Natural Water"
             className="h-16 w-auto mx-auto mb-4"
           />
@@ -141,12 +141,7 @@ const AdminLoginPage = () => {
             </button>
           </form>
 
-          {/* Demo Credentials */}
-          <div className="mt-6 p-4 bg-ocean-50 rounded-lg border border-ocean-100">
-            <p className="text-xs text-ocean-700 font-medium mb-2">Demo Credentials:</p>
-            <p className="text-xs text-ocean-600">Email: admin@dyamwater.com</p>
-            <p className="text-xs text-ocean-600">Password: admin123</p>
-          </div>
+          {/* Note: Admin credentials are managed in the database. */}
         </div>
 
         {/* Back to Website */}

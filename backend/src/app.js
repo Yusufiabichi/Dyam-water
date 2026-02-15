@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import db from './config/db.js';
+import dotenv from 'dotenv';
 
 // Route imports
 import sponsorRoutes from './routes/sponsor.routes.js';
@@ -8,6 +9,7 @@ import distributorRoutes from './routes/distributor.routes.js';
 import transactionRoutes from './routes/transaction.routes.js';
 import messageRoutes from './routes/message.routes.js';
 import webhookRoutes from './routes/webhook.routes.js';
+import adminRoutes from './routes/admin.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -37,6 +39,7 @@ app.use('/api/distributors', distributorRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/webhooks', webhookRoutes);
+app.use('/api/admin', adminRoutes);
 
 // ============================================
 // ERROR HANDLING MIDDLEWARE

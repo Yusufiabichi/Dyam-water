@@ -1,5 +1,6 @@
 
 import { useAdminAuth } from '../../contexts/AdminAuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface AdminHeaderProps {
   title: string;
@@ -8,6 +9,8 @@ interface AdminHeaderProps {
 
 const AdminHeader = ({ title, onMenuClick }: AdminHeaderProps) => {
   const { admin } = useAdminAuth();
+  const { logout } = useAdminAuth();
+  const navigate = useNavigate();
 
   return (
     <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
@@ -37,6 +40,16 @@ const AdminHeader = ({ title, onMenuClick }: AdminHeaderProps) => {
             <p className="text-sm font-medium text-gray-900">{admin?.name}</p>
           </div>
         </div>
+        <button
+          onClick={() => {
+            logout();
+            navigate('/admin/login');
+          }}
+          title="Logout"
+          className="ml-3 px-3 py-2 bg-red-50 text-red-700 rounded-md text-sm hover:bg-red-100"
+        >
+          Logout
+        </button>
       </div>
     </header>
   );

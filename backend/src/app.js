@@ -3,6 +3,8 @@ import cors from 'cors';
 import db from './config/db.js';
 import dotenv from 'dotenv';
 
+dotenv.config();
+
 // Route imports
 import sponsorRoutes from './routes/sponsor.routes.js';
 import distributorRoutes from './routes/distributor.routes.js';
@@ -17,8 +19,18 @@ const PORT = process.env.PORT || 4000;
 // ============================================
 // MIDDLEWARE
 // ============================================
+// Middleware to capture raw body (for webhook signature validation)
+const rawBodyBuffer = (req, res, buf) => {
+  if (buf && buf.length) {
+    req.rawBody = buf.toString('utf8');
+  }
+};
+
 // External Middleware
 app.use(cors());
+// Apply raw body capture only to webhook route
+app.use('/api/webhooks', express.json({ verify: rawBodyBuffer }));
+// Standard JSON parsing for other routes
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -27,6 +39,10 @@ app.use(express.urlencoded({ extended: true }));
 // ============================================
 app.get('/', (req, res) => {
   res.send('Hello, World!');
+});
+
+app.get('/payment-success', (req, res) => {
+  res.send('Your payment was successful! Thank you for your support.');
 });
 
 app.get('/api/health', (req, res) => {

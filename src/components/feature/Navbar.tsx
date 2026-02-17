@@ -2,11 +2,17 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
-const Navbar = () => {
+interface NavbarProps {
+  logo?: string;
+}
+
+const Navbar = ({ logo }: NavbarProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const isHomePage = location.pathname === '/' || location.pathname === '';
+
+  const defaultLogo = "https://static.readdy.ai/image/6f2b631dac997628c51208e81abd8495/a5f9e0d89d96e9a4d5ccc2ddfdcd62fa.jpeg";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,7 +34,7 @@ const Navbar = () => {
 
   const LogoContent = () => (
     <img
-      src="https://static.readdy.ai/image/6f2b631dac997628c51208e81abd8495/a5f9e0d89d96e9a4d5ccc2ddfdcd62fa.jpeg"
+      src={logo || defaultLogo}
       alt="DYAM Natural Water - Premium Bottled Water Nigeria"
       className="h-14 w-auto"
     />

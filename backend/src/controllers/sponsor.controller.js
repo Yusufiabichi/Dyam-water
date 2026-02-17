@@ -1,4 +1,5 @@
 import db from '../config/db.js';
+import { initializePayment } from '../services/paystack.service.js';
 
 export const createSponsor = (req, res) => {
   // Accept both backend-expected and frontend payload keys
@@ -35,21 +36,58 @@ export const createSponsor = (req, res) => {
   db.query(
     query,
     [fullName, emailAddr, phoneNumber, distributedTo, selectedPlan, sponsorAmount],
-    (err, result) => {
+    async (err, result) => {
       if (err) {
         console.error('Failed to create sponsor:', err);
         return res.status(500).json({ message: 'Failed to create sponsor' });
       }
 
-      return res.status(201).json({
-        id: result.insertId,
-        full_name: fullName,
-        email: emailAddr,
-        phone_number: phoneNumber,
-        distributed_to: distributedTo,
-        selected_plan: selectedPlan,
-        amount: sponsorAmount
-      });
+      const sponsorId = result.insertId;
+
+      try {
+        // Initialize Paystack payment with sponsor data and plan amount
+        const paymentData = await initializePayment({
+          email: emailAddr,
+          amount: sponsorAmount,
+          reference: `SPONSOR_${sponsorId}_${Date.now()}`,
+          metadata: {
+            sponsor_id: sponsorId,
+            full_name: fullName,
+            phone_number: phoneNumber,
+            distributed_to: distributedTo,
+            selected_plan: selectedPlan,
+          },
+        });
+
+        return res.status(201).json({
+          id: sponsorId,
+          full_name: fullName,
+          email: emailAddr,
+          phone_number: phoneNumber,
+          distributed_to: distributedTo,
+          selected_plan: selectedPlan,
+          amount: sponsorAmount,
+          payment: {
+            authorization_url: paymentData.data?.authorization_url,
+            access_code: paymentData.data?.access_code,
+            reference: paymentData.data?.reference,
+          },
+        });
+      } catch (paymentErr) {
+        console.error('Payment initialization failed:', paymentErr.message);
+        // Sponsor was saved but payment failed—return sponsor with error flag
+        return res.status(201).json({
+          id: sponsorId,
+          full_name: fullName,
+          email: emailAddr,
+          phone_number: phoneNumber,
+          distributed_to: distributedTo,
+          selected_plan: selectedPlan,
+          amount: sponsorAmount,
+          payment_error: true,
+          payment_message: 'Sponsor saved, but payment initialization failed. Please retry.',
+        });
+      }
     }
   );
 };

@@ -5,6 +5,7 @@ import SEOHead from '../../components/feature/SEOHead';
 import { useState } from 'react';
 
 const CharityPage = () => {
+  const charityLogoUrl = "./dyam-charity-logo.jpg";
   const [selectedPlan, setSelectedPlan] = useState<string>('');
   const [showDonationForm, setShowDonationForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -140,7 +141,22 @@ const CharityPage = () => {
       });
 
       if (response.ok) {
+        const data = await response.json();
         setSubmitStatus('success');
+
+        // Redirect to payment if authorization_url is available
+        if (data.payment?.authorization_url) {
+          // Wait a moment to show success message, then redirect to Paystack
+          setTimeout(() => {
+            window.location.href = data.payment.authorization_url;
+          }, 1500);
+        } else if (data.payment_error) {
+          // Payment initialization failed, but sponsor was saved
+          console.warn('Payment initialization failed:', data.payment_message);
+          setSubmitStatus('error');
+        }
+
+        // Reset form
         setFormData({
           name: '',
           email: '',
@@ -150,11 +166,11 @@ const CharityPage = () => {
           amount: '',
         });
         setSelectedPlan('');
-        setShowDonationForm(false);
       } else {
         setSubmitStatus('error');
       }
     } catch (error) {
+      console.error('Submission error:', error);
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
@@ -215,13 +231,13 @@ const CharityPage = () => {
         canonicalPath="/charity-water"
         structuredData={charityStructuredData}
       />
-      <Navbar />
+      <Navbar logo={charityLogoUrl} />
       <main>
         {/* Emotional Hero Section */}
         <header className="relative min-h-screen flex items-end overflow-hidden">
           <div className="absolute inset-0 z-0">
             <img
-              src="https://readdy.ai/api/search-image?query=hands%20receiving%20bottled%20water%20with%20gratitude%2C%20soft%20focus%20background%20of%20Nigerian%20community%20gathering%2C%20warm%20natural%20lighting%2C%20emotional%20moment%2C%20humanitarian%20aid%2C%20charitable%20giving%2C%20people%20helping%20people%2C%20hope%20and%20compassion%2C%20documentary%20photography%20style%2C%20authentic%20moment%2C%20cultural%20sensitivity%2C%20heartwarming%20scene&width=1920&height=1080&seq=charity-hero-001&orientation=landscape"
+              src="./charity-hero.png"
               alt="DYAM Charity Water distribution to Nigerian communities - free bottled water donation"
               title="DYAM Charity Water Impact - Free Water for Communities"
               className="w-full h-full object-cover object-center"

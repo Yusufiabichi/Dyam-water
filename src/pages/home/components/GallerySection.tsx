@@ -4,22 +4,22 @@ import { useEffect, useRef, useState } from 'react';
 const galleryImages = [
   {
     id: 1,
-    src: "https://readdy.ai/api/search-image?query=Premium%20bottled%20water%20production%20facility%20in%20Nigeria%2C%20modern%20clean%20factory%20environment%2C%20water%20bottling%20line%2C%20industrial%20machinery%2C%20professional%20workers%20in%20uniforms%2C%20bright%20clean%20lighting%2C%20high%20quality%20manufacturing%2C%20corporate%20documentary%20style%20photography&width=600&height=400&seq=gallery-001&orientation=landscape",
-    caption: "State-of-the-art Production Facility"
-  },
-  {
-    id: 2,
-    src: "https://readdy.ai/api/search-image?query=Nigerian%20community%20event%20with%20free%20water%20distribution%2C%20happy%20people%20receiving%20bottled%20water%2C%20outdoor%20gathering%2C%20sunny%20day%2C%20charitable%20giving%20moment%2C%20documentary%20photography%2C%20authentic%20smiles%2C%20community%20support&width=600&height=400&seq=gallery-002&orientation=landscape",
+    src: "./charity-children.png",
     caption: "Community Water Distribution"
   },
   {
+    id: 2,
+    src: "./dispenser.jpg",
+    caption: "Corporate Water Dispenser"
+  },
+  {
     id: 3,
-    src: "https://readdy.ai/api/search-image?query=Crystal%20clear%20pure%20drinking%20water%20being%20poured%20into%20glass%2C%20water%20splash%2C%20pristine%20blue%20water%20droplets%2C%20refreshing%20beverage%2C%20clean%20white%20background%2C%20product%20photography%2C%20high%20quality%20commercial%20shot&width=600&height=400&seq=gallery-003&orientation=landscape",
+    src: "./pure-natural-water.png",
     caption: "Pure Natural Water"
   },
   {
     id: 4,
-    src: "https://readdy.ai/api/search-image?query=Nigerian%20mosque%20during%20Ramadan%20iftar%20with%20bottled%20water%20distribution%2C%20evening%20golden%20hour%20lighting%2C%20community%20gathering%2C%20charitable%20donation%2C%20Islamic%20architecture%2C%20respectful%20documentary%20photography%2C%20warm%20atmosphere&width=600&height=400&seq=gallery-004&orientation=landscape",
+    src: "./ramadan-pic.png",
     caption: "Ramadan Iftar Support"
   },
   {

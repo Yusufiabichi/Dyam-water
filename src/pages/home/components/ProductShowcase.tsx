@@ -9,7 +9,7 @@ const ProductShowcase = () => {
       name: 'Charity & Promo',
       badge: 'NOT FOR SALE',
       bgColor: 'from-charity-50 to-charity-100',
-      image: 'https://readdy.ai/api/search-image?query=premium%2035cl%20small%20bottled%20water%20bottle%20product%20photography%20on%20soft%20coral%20pink%20gradient%20background%2C%20minimalist%20clean%20aesthetic%2C%20centered%20composition%2C%20professional%20studio%20lighting%2C%20high%20quality%20commercial%20photo%2C%20water%20droplets%20on%20bottle%20surface%2C%20NAFDAC%20certified%20label%20visible%2C%20Nigerian%20bottled%20water%20brand%2C%20simple%20elegant%20design%2C%20sharp%20focus&width=400&height=600&seq=prod-35cl-001&orientation=portrait',
+      image: './charity-water.jpg',
     },
     {
       id: 2,
@@ -17,7 +17,7 @@ const ProductShowcase = () => {
       name: 'Standard Size',
       badge: 'NAFDAC Certified',
       bgColor: 'from-brand-50 to-brand-100',
-      image: 'https://readdy.ai/api/search-image?query=premium%2050cl%20medium%20bottled%20water%20bottle%20product%20photography%20on%20soft%20mint%20green%20gradient%20background%2C%20minimalist%20clean%20aesthetic%2C%20centered%20composition%2C%20professional%20studio%20lighting%2C%20high%20quality%20commercial%20photo%2C%20water%20droplets%20on%20bottle%20surface%2C%20NAFDAC%20certified%20label%20visible%2C%20Nigerian%20bottled%20water%20brand%2C%20simple%20elegant%20design%2C%20sharp%20focus&width=400&height=600&seq=prod-50cl-001&orientation=portrait',
+      image: './50cl.png',
     },
     {
       id: 3,
@@ -25,7 +25,7 @@ const ProductShowcase = () => {
       name: 'Large Size',
       badge: 'NAFDAC Certified',
       bgColor: 'from-teal-50 to-teal-100',
-      image: 'https://readdy.ai/api/search-image?query=premium%2075cl%20large%20bottled%20water%20bottle%20product%20photography%20on%20soft%20pale%20lavender%20gradient%20background%2C%20minimalist%20clean%20aesthetic%2C%20centered%20composition%2C%20professional%20studio%20lighting%2C%20high%20quality%20commercial%20photo%2C%20water%20droplets%20on%20bottle%20surface%2C%20NAFDAC%20certified%20label%20visible%2C%20Nigerian%20bottled%20water%20brand%2C%20simple%20elegant%20design%2C%20sharp%20focus&width=400&height=600&seq=prod-75cl-001&orientation=portrait',
+      image: './75cl.jpg',
     },
     {
       id: 4,
@@ -33,7 +33,7 @@ const ProductShowcase = () => {
       name: 'Dispenser',
       badge: 'NAFDAC Certified',
       bgColor: 'from-amber-50 to-amber-100',
-      image: 'https://readdy.ai/api/search-image?query=premium%2015%20liter%20water%20dispenser%20bottle%20product%20photography%20on%20warm%20sand%20beige%20gradient%20background%2C%20minimalist%20clean%20aesthetic%2C%20centered%20composition%2C%20professional%20studio%20lighting%2C%20high%20quality%20commercial%20photo%2C%20large%20water%20container%2C%20NAFDAC%20certified%20label%20visible%2C%20Nigerian%20bottled%20water%20brand%2C%20simple%20elegant%20design%2C%20sharp%20focus&width=400&height=600&seq=prod-15l-001&orientation=portrait',
+      image: './dispenser.jpg',
     },
   ];
 
@@ -58,12 +58,12 @@ const ProductShowcase = () => {
               className="group bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden hover:-translate-y-2 cursor-pointer"
             >
               {/* Image Area */}
-              <div className={`relative h-80 bg-gradient-to-br ${product.bgColor} p-8 flex items-center justify-center`}>
+              <div className={`relative h-80 bg-gradient-to-br ${product.bgColor} overflow-hidden`}>
                 <div className="w-full h-full">
                   <img
                     src={product.image}
                     alt={`DYAM ${product.size} Water Bottle`}
-                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
                 {product.badge === 'NOT FOR SALE' && (

@@ -13,7 +13,7 @@ const ProductsPage = () => {
       features: ['NAFDAC Certified', 'Hygienically Sealed', 'BPA-Free Plastic'],
       idealFor: ['Charity Events', 'Ramadan Iftar', 'Church Programs', 'School Distributions'],
       bgColor: 'from-rose-50 to-rose-100',
-      image: 'https://readdy.ai/api/search-image?query=premium%2035cl%20small%20bottled%20water%20bottle%20product%20photography%20on%20soft%20coral%20pink%20gradient%20background%2C%20minimalist%20clean%20aesthetic%2C%20centered%20composition%2C%20professional%20studio%20lighting%2C%20high%20quality%20commercial%20photo%2C%20water%20droplets%20on%20bottle%20surface%2C%20NAFDAC%20certified%20label%20visible%2C%20Nigerian%20bottled%20water%20brand%2C%20simple%20elegant%20design%2C%20sharp%20focus&width=600&height=800&seq=prod-35cl-002&orientation=portrait',
+      image: './charity-water.jpg',
       badge: 'NOT FOR SALE',
     },
     {
@@ -24,7 +24,7 @@ const ProductsPage = () => {
       features: ['NAFDAC Certified', 'Hygienically Sealed', 'BPA-Free Plastic'],
       idealFor: ['Office Use', 'Home Consumption', 'Travel', 'Meetings'],
       bgColor: 'from-emerald-50 to-emerald-100',
-      image: 'https://readdy.ai/api/search-image?query=premium%2050cl%20medium%20bottled%20water%20bottle%20product%20photography%20on%20soft%20mint%20green%20gradient%20background%2C%20minimalist%20clean%20aesthetic%2C%20centered%20composition%2C%20professional%20studio%20lighting%2C%20high%20quality%20commercial%20photo%2C%20water%20droplets%20on%20bottle%20surface%2C%20NAFDAC%20certified%20label%20visible%2C%20Nigerian%20bottled%20water%20brand%2C%20simple%20elegant%20design%2C%20sharp%20focus&width=600&height=800&seq=prod-50cl-002&orientation=portrait',
+      image: './50cl.png',
     },
     {
       id: 3,
@@ -34,7 +34,7 @@ const ProductsPage = () => {
       features: ['NAFDAC Certified', 'Hygienically Sealed', 'BPA-Free Plastic'],
       idealFor: ['Sports & Fitness', 'Outdoor Activities', 'Long Meetings', 'Extended Travel'],
       bgColor: 'from-violet-50 to-violet-100',
-      image: 'https://readdy.ai/api/search-image?query=premium%2075cl%20large%20bottled%20water%20bottle%20product%20photography%20on%20soft%20pale%20lavender%20gradient%20background%2C%20minimalist%20clean%20aesthetic%2C%20centered%20composition%2C%20professional%20studio%20lighting%2C%20high%20quality%20commercial%20photo%2C%20water%20droplets%20on%20bottle%20surface%2C%20NAFDAC%20certified%20label%20visible%2C%20Nigerian%20bottled%20water%20brand%2C%20simple%20elegant%20design%2C%20sharp%20focus&width=600&height=800&seq=prod-75cl-002&orientation=portrait',
+      image: './75cl.jpg',
     },
     {
       id: 4,
@@ -44,7 +44,7 @@ const ProductsPage = () => {
       features: ['NAFDAC Certified', 'Hygienically Sealed', 'Food-Grade Plastic'],
       idealFor: ['Office Dispensers', 'Home Use', 'Events', 'Institutions'],
       bgColor: 'from-amber-50 to-amber-100',
-      image: 'https://readdy.ai/api/search-image?query=premium%2015%20liter%20water%20dispenser%20bottle%20product%20photography%20on%20warm%20sand%20beige%20gradient%20background%2C%20minimalist%20clean%20aesthetic%2C%20centered%20composition%2C%20professional%20studio%20lighting%2C%20high%20quality%20commercial%20photo%2C%20large%20water%20container%2C%20NAFDAC%20certified%20label%20visible%2C%20Nigerian%20bottled%20water%20brand%2C%20simple%20elegant%20design%2C%20sharp%20focus&width=600&height=800&seq=prod-15l-002&orientation=portrait',
+      image: './dispenser.jpg',
     },
   ];
 
@@ -115,13 +115,13 @@ const ProductsPage = () => {
                 >
                   {/* Product Image */}
                   <div className={`${index % 2 === 1 ? 'lg:order-2' : ''}`}>
-                    <div className={`relative rounded-3xl bg-gradient-to-br ${product.bgColor} p-12 shadow-xl`}>
+                    <div className={`relative rounded-3xl bg-gradient-to-br ${product.bgColor} shadow-xl overflow-hidden`}>
                       <div className="w-full h-96">
                         <img
                           src={product.image}
                           alt={`DYAM ${product.size} ${product.name} - NAFDAC Certified Bottled Water Nigeria`}
                           title={`DYAM Natural Water ${product.size} ${product.name}`}
-                          className="w-full h-full object-contain"
+                          className="w-full h-full object-cover"
                         />
                       </div>
                       {product.badge && (

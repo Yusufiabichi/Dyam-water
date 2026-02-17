@@ -10,6 +10,7 @@ const ProductsPage = lazy(() => import('../pages/products/page'));
 const DistributionPage = lazy(() => import('../pages/distribution/page'));
 const CharityPage = lazy(() => import('../pages/charity/page'));
 const ContactPage = lazy(() => import('../pages/contact/page'));
+const PaymentSuccessPage = lazy(() => import('../pages/payment-success/page'));
 
 // Admin Pages
 const AdminLoginPage = lazy(() => import('../pages/admin/login/page'));
@@ -35,6 +36,10 @@ const routes: RouteObject[] = [
   {
     path: '/',
     element: <HomePage />,
+  },
+  {
+    path: '/payment-success',
+    element: <PaymentSuccessPage />,
   },
   {
     path: '/about-us',

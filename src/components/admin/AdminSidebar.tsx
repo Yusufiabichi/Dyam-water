@@ -77,7 +77,7 @@ const AdminSidebar = ({ isOpen, onClose }: AdminSidebarProps) => {
         <div className="h-16 flex items-center justify-between px-6 border-b border-white/10">
           <Link to="/admin/dashboard" className="flex items-center space-x-3">
             <img
-              src="https://public.readdy.ai/ai/img_res/0567d353-d7a5-46dc-8fa1-bf10faa1ffe1.png"
+              src="./dyam-logo.jpg"
               alt="DYAM"
               className="h-8 w-auto"
             />

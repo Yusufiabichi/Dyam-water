@@ -43,13 +43,52 @@ export const createSponsor = (req, res) => {
       }
 
       const sponsorId = result.insertId;
+      const reference = `SPONSOR_${sponsorId}_${Date.now()}`;
+      const insertPendingTransaction = () =>
+        new Promise((resolve, reject) => {
+          const txQuery = `
+            INSERT INTO transactions (reference, sponsor_id, plan, amount, status, transaction_id, payment_method, paid_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          `;
+
+          db.query(
+            txQuery,
+            [reference, sponsorId, selectedPlan, sponsorAmount, 'Pending', null, 'Paystack', null],
+            (txErr) => {
+              if (txErr) return reject(txErr);
+              resolve();
+            }
+          );
+        });
+
+      const updateTransactionStatus = (status) =>
+        new Promise((resolve, reject) => {
+          const txUpdateQuery = `
+            UPDATE transactions
+            SET status = ?, paid_at = ?
+            WHERE reference = ?
+          `;
+
+          db.query(txUpdateQuery, [status, new Date(), reference], (txErr) => {
+            if (txErr) return reject(txErr);
+            resolve();
+          });
+        });
+
+      try {
+        await insertPendingTransaction();
+      } catch (txErr) {
+        console.error('Failed to create pending transaction:', txErr);
+        return res.status(500).json({ message: 'Failed to create pending transaction' });
+      }
 
       try {
         // Initialize Paystack payment with sponsor data and plan amount
         const paymentData = await initializePayment({
           email: emailAddr,
           amount: sponsorAmount,
-          reference: `SPONSOR_${sponsorId}_${Date.now()}`,
+          reference,
+          callback_url: `${process.env.FRONTEND_BASE_URL || 'http://localhost:3000'}/payment-success`,
           metadata: {
             sponsor_id: sponsorId,
             full_name: fullName,
@@ -75,7 +114,13 @@ export const createSponsor = (req, res) => {
         });
       } catch (paymentErr) {
         console.error('Payment initialization failed:', paymentErr.message);
-        // Sponsor was saved but payment failed—return sponsor with error flag
+
+        try {
+          await updateTransactionStatus('Failed');
+        } catch (txErr) {
+          console.error('Failed to mark transaction as failed after payment init error:', txErr);
+        }
+
         return res.status(201).json({
           id: sponsorId,
           full_name: fullName,

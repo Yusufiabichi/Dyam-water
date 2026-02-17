@@ -14,7 +14,7 @@ const galleryImages = [
   },
   {
     id: 3,
-    src: "./pure-natural-water.png",
+    src: "./75cl.jpg",
     caption: "Pure Natural Water"
   },
   {

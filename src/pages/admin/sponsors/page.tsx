@@ -2,6 +2,8 @@
 import { useEffect, useState } from 'react';
 import { distributeToOptions } from '../../../mocks/sponsors';
 
+const API_BASE_URL = 'http://localhost:4000/api';
+
 interface Sponsor {
   id: string;
   name: string;
@@ -23,12 +25,20 @@ const AdminSponsorsPage = () => {
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dbStatus, setDbStatus] = useState<'connected' | 'disconnected' | 'checking'>('checking');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchSponsors = async () => {
       setLoading(true);
       try {
-        const res = await fetch('http://localhost:4000/api/sponsors');
+        const [healthRes, res] = await Promise.all([
+          fetch(`${API_BASE_URL}/health/db`),
+          fetch(`${API_BASE_URL}/sponsors`)
+        ]);
+
+        setDbStatus(healthRes.ok ? 'connected' : 'disconnected');
         if (!res.ok) throw new Error(`Status ${res.status}`);
         const rows = await res.json();
 
@@ -52,7 +62,7 @@ const AdminSponsorsPage = () => {
         setSponsors(mapped);
         // Fetch transactions to compute totals
         try {
-          const tRes = await fetch('http://localhost:4000/api/transactions');
+          const tRes = await fetch(`${API_BASE_URL}/transactions`);
           if (tRes.ok) {
             const txRows = await tRes.json();
             const successful = (txRows || []).filter((t: any) => (t.status || '').toLowerCase() === 'success');
@@ -95,6 +105,7 @@ const AdminSponsorsPage = () => {
       } catch (e: any) {
         // eslint-disable-next-line no-console
         console.error('Failed to load sponsors', e);
+        setDbStatus('disconnected');
         setError(e?.message || 'Failed to load sponsors');
       } finally {
         setLoading(false);
@@ -176,18 +187,56 @@ const AdminSponsorsPage = () => {
     );
   };
 
-  const handleAddSponsor = () => {
-    const newSponsor: Sponsor = {
-      id: `sp-${Date.now()}`,
-      ...formData,
-      totalDonations: 0,
-      totalAmount: 0,
-      joinedDate: new Date().toISOString().split('T')[0],
-      lastDonationDate: null,
-    };
-    setSponsors([newSponsor, ...sponsors]);
-    setShowAddModal(false);
-    resetForm();
+  const handleAddSponsor = async () => {
+    if (isSubmitting) return;
+
+    setSubmitError(null);
+    setIsSubmitting(true);
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/sponsors`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          full_name: formData.name,
+          email: formData.email,
+          phone_number: formData.phone,
+          distributed_to: formData.distributeTo,
+          selected_plan: formData.planName,
+          amount: formData.amount
+        })
+      });
+
+      if (!res.ok) {
+        throw new Error(`Failed to create sponsor (Status ${res.status})`);
+      }
+
+      const created = await res.json();
+      const createdSponsor: Sponsor = {
+        id: String(created.id ?? `sp-${Date.now()}`),
+        name: created.full_name || formData.name,
+        email: created.email || formData.email,
+        phone: created.phone_number || formData.phone,
+        company: formData.company,
+        planName: created.selected_plan || formData.planName,
+        amount: Number(created.amount ?? formData.amount) || 0,
+        distributeTo: created.distributed_to || formData.distributeTo,
+        totalDonations: 0,
+        totalAmount: 0,
+        status: formData.status,
+        joinedDate: new Date().toISOString().split('T')[0],
+        lastDonationDate: null,
+        notes: formData.notes
+      };
+
+      setSponsors((prev) => [createdSponsor, ...prev]);
+      setShowAddModal(false);
+      resetForm();
+    } catch (e: any) {
+      setSubmitError(e?.message || 'Failed to create sponsor');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleEditSponsor = () => {
@@ -265,6 +314,9 @@ const AdminSponsorsPage = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Sponsors Manager</h1>
           <p className="text-gray-500 text-sm mt-1">Manage charity water sponsors and donations</p>
+          <p className={`text-xs mt-1 ${dbStatus === 'connected' ? 'text-green-600' : dbStatus === 'checking' ? 'text-gray-500' : 'text-red-600'}`}>
+            DB: {dbStatus === 'checking' ? 'checking' : dbStatus}
+          </p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}
@@ -468,6 +520,11 @@ const AdminSponsorsPage = () => {
               </div>
             </div>
             <div className="p-6 space-y-4">
+              {submitError && (
+                <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                  {submitError}
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Full Name *</label>
                 <input
@@ -571,10 +628,10 @@ const AdminSponsorsPage = () => {
               </button>
               <button
                 onClick={handleAddSponsor}
-                disabled={!formData.name || !formData.email || !formData.phone}
+                disabled={!formData.name || !formData.email || !formData.phone || isSubmitting}
                 className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 disabled:bg-gray-300 text-white rounded-lg font-medium transition-colors cursor-pointer whitespace-nowrap"
               >
-                Add Sponsor
+                {isSubmitting ? 'Adding...' : 'Add Sponsor'}
               </button>
             </div>
           </div>

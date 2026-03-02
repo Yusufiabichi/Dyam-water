@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import db from './config/db.js';
+import { validateDbConnection } from './config/db.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -47,6 +47,15 @@ app.get('/payment-success', (req, res) => {
 
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'API is running' });
+});
+
+app.get('/api/health/db', async (req, res) => {
+  try {
+    const ok = await validateDbConnection();
+    return res.status(200).json({ status: ok ? 'connected' : 'disconnected' });
+  } catch (error) {
+    return res.status(500).json({ status: 'disconnected', error: error.message });
+  }
 });
 
 // Mount route modules

@@ -10,7 +10,7 @@ const Footer = () => {
     const formData = new FormData(form);
     
     try {
-      const response = await fetch('https://readdy.ai/api/form/', {
+      const response = await fetch('', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -120,6 +120,11 @@ const Footer = () => {
               <li>
                 <Link to="/contact" className="text-sm text-white/70 hover:text-white transition-colors">
                   Contact Us
+                </Link>
+              </li>
+              <li>
+                <Link to="/admin" target="_blank" className="text-sm text-white/70 hover:text-white transition-colors">
+                  Manage
                 </Link>
               </li>
             </ul>

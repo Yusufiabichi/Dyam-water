@@ -17,29 +17,29 @@ const AdminSidebar = ({ isOpen, onClose }: AdminSidebarProps) => {
       icon: 'ri-dashboard-line',
     },
     {
-      name: 'Distributors',
-      path: '/admin/distributors',
-      icon: 'ri-truck-line',
+      name: 'Transactions',
+      path: '/admin/transactions',
+      icon: 'ri-exchange-dollar-line',
     },
-    {
-      name: 'Charity Plans',
-      path: '/admin/charity-plans',
-      icon: 'ri-heart-line',
-    },
+    // {
+    //   name: 'Charity Plans',
+    //   path: '/admin/charity-plans',
+    //   icon: 'ri-heart-line',
+    // },
     {
       name: 'Sponsors',
       path: '/admin/sponsors',
       icon: 'ri-user-heart-line',
     },
     {
-      name: 'Transactions',
-      path: '/admin/transactions',
-      icon: 'ri-exchange-dollar-line',
-    },
-    {
       name: 'Messages',
       path: '/admin/messages',
       icon: 'ri-message-3-line',
+    },
+    {
+      name: 'Distributors',
+      path: '/admin/distributors',
+      icon: 'ri-truck-line',
     },
   ];
 

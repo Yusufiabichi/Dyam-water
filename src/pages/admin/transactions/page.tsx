@@ -15,6 +15,34 @@ interface Transaction {
   currency: string;
 }
 
+type TransactionStatus = 'success' | 'pending' | 'failed';
+
+const normalizeTransactionStatus = (rawStatus: unknown): TransactionStatus => {
+  const status = String(rawStatus || '').trim().toLowerCase();
+
+  if (
+    status === 'success' ||
+    status === 'successful' ||
+    status === 'paid' ||
+    status === 'completed'
+  ) {
+    return 'success';
+  }
+
+  if (
+    status === 'failed' ||
+    status === 'failure' ||
+    status === 'error' ||
+    status === 'declined' ||
+    status === 'cancelled' ||
+    status === 'canceled'
+  ) {
+    return 'failed';
+  }
+
+  return 'pending';
+};
+
 const extractNameEmail = (donorInfo: any): { name: string; email: string } => {
   if (typeof donorInfo === 'string') {
     try {
@@ -63,7 +91,7 @@ export default function TransactionsPage() {
             phone: '',
             amount: Number(row.amount) || 0,
             plan: row.plan || '',
-            status: (row.status || 'pending') as 'success' | 'pending' | 'failed',
+            status: normalizeTransactionStatus(row.status),
             date: row.date_time ? new Date(row.date_time).toISOString() : new Date().toISOString(),
             paymentMethod: row.payment_method || 'Card',
             currency: 'NGN'
@@ -111,14 +139,21 @@ export default function TransactionsPage() {
 
   // Calculate statistics
   const stats = useMemo(() => {
-    const total = transactions.reduce((sum, txn) => 
-      txn.status === 'success' ? sum + txn.amount : sum, 0
-    );
-    const successCount = transactions.filter(txn => txn.status === 'success').length;
-    const pendingCount = transactions.filter(txn => txn.status === 'pending').length;
-    const failedCount = transactions.filter(txn => txn.status === 'failed').length;
+    return transactions.reduce(
+      (acc, txn) => {
+        if (txn.status === 'success') {
+          acc.total += txn.amount;
+          acc.successCount += 1;
+        } else if (txn.status === 'pending') {
+          acc.pendingCount += 1;
+        } else if (txn.status === 'failed') {
+          acc.failedCount += 1;
+        }
 
-    return { total, successCount, pendingCount, failedCount };
+        return acc;
+      },
+      { total: 0, successCount: 0, pendingCount: 0, failedCount: 0 }
+    );
   }, [transactions]);
 
   // Export to CSV

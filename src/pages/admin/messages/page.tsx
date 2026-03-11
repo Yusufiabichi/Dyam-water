@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { apiUrl } from '../../../lib/api';
 
 type Message = {
   id: number | string;
@@ -25,7 +26,7 @@ const AdminMessagesPage = () => {
     const fetchMessages = async () => {
       setLoading(true);
       try {
-        const res = await fetch('http://localhost:4000/api/messages');
+        const res = await fetch(apiUrl('messages'));
         if (!res.ok) throw new Error(`Status ${res.status}`);
         const rows = await res.json();
         setMessages(rows || []);
@@ -71,7 +72,7 @@ const AdminMessagesPage = () => {
         partnership_type: 'Admin Reply',
         message: replyBody,
       };
-      const res = await fetch('http://localhost:4000/api/messages', {
+      const res = await fetch(apiUrl('messages'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -106,7 +107,7 @@ const AdminMessagesPage = () => {
     try {
       await Promise.all(
         targets.map((t) =>
-          fetch('http://localhost:4000/api/messages', {
+          fetch(apiUrl('messages'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -143,7 +144,7 @@ const AdminMessagesPage = () => {
             onClick={() => {
               // refresh
               setLoading(true);
-              fetch('http://localhost:4000/api/messages')
+              fetch(apiUrl('messages'))
                 .then((r) => r.json())
                 .then((rows) => setMessages(rows || []))
                 .catch((e) => { console.error(e); setError('Failed to refresh'); })

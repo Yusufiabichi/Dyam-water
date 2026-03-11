@@ -1,13 +1,14 @@
-
 import Navbar from '../../components/feature/Navbar';
 import Footer from '../../components/feature/Footer';
 import SEOHead from '../../components/feature/SEOHead';
 import { useState } from 'react';
+import { apiUrl } from '../../lib/api';
 
 const CharityPage = () => {
   const charityLogoUrl = "./dyam-charity-logo.jpg";
   const [selectedPlan, setSelectedPlan] = useState<string>('');
   const [showDonationForm, setShowDonationForm] = useState(false);
+  const [showBankModal, setShowBankModal] = useState(false); // <-- added
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -18,6 +19,13 @@ const CharityPage = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [copied, setCopied] = useState(false); 
+
+  const bankInfo = {
+    bankName: 'Zenith Bank',
+    accountName: 'DYAM Natural Water',
+    accountNumber: '1311596695',
+  };
 
   const individualPlans = [
     {
@@ -108,6 +116,7 @@ const CharityPage = () => {
     setSelectedPlan(planId);
     setFormData(prev => ({ ...prev, plan: planName, amount: amount.toString() }));
     setShowDonationForm(true);
+    setShowBankModal(true); 
     setTimeout(() => {
       document.getElementById('donation-form')?.scrollIntoView({ behavior: 'smooth' });
     }, 100);
@@ -118,13 +127,22 @@ const CharityPage = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const copyAccountNumber = async () => {
+    try {
+      await navigator.clipboard.writeText(bankInfo.accountNumber);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      console.error('Failed to copy account number');}
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus('idle');
+    setShowBankModal(true);
 
     try {
-      // normalize frontend keys to backend expected keys
       const payload = {
         full_name: formData.name,
         email: formData.email,
@@ -134,29 +152,15 @@ const CharityPage = () => {
         amount: Number(formData.amount) || 0,
       };
 
-      const response = await fetch('http://localhost:4000/api/sponsors/', {
+      const response = await fetch(apiUrl('sponsors'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
       if (response.ok) {
-        const data = await response.json();
         setSubmitStatus('success');
-
-        // Redirect to payment if authorization_url is available
-        if (data.payment?.authorization_url) {
-          // Wait a moment to show success message, then redirect to Paystack
-          setTimeout(() => {
-            window.location.href = data.payment.authorization_url;
-          }, 1500);
-        } else if (data.payment_error) {
-          // Payment initialization failed, but sponsor was saved
-          console.warn('Payment initialization failed:', data.payment_message);
-          setSubmitStatus('error');
-        }
-
-        // Reset form
+        // Paystack removed for now (no redirect)
         setFormData({
           name: '',
           email: '',
@@ -233,7 +237,7 @@ const CharityPage = () => {
       />
       <Navbar logo={charityLogoUrl} />
       <main>
-        {/* Emotional Hero Section */}
+        {/*Hero Section */}
         <header className="relative min-h-screen flex items-end overflow-hidden">
           <div className="absolute inset-0 z-0">
             <img
@@ -929,6 +933,48 @@ const CharityPage = () => {
 
       {/* FAQ Structured Data Script */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }} />
+
+      {showBankModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
+            <h2 className="text-xl font-semibold mb-3">Bank Transfer Details</h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Kindly transfer the sponsorship amount to the bank details below, then complete your details in the form.
+            </p>
+
+            <div className="space-y-2 text-sm">
+              <div>
+                <span className="font-semibold">Bank:</span> {bankInfo.bankName}
+              </div>
+              <div>
+                <span className="font-semibold">Account name:</span> {bankInfo.accountName}
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="font-semibold">Account number:</span> {bankInfo.accountNumber}
+                </div>
+                <button
+                  type="button"
+                  onClick={copyAccountNumber}
+                  className="ml-3 px-3 py-2 bg-charity-500 text-white rounded-full text-sm"
+                >
+                  {copied ? 'Copied' : 'Copy'}
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-6 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowBankModal(false)}
+                className="flex-1 bg-gray-100 text-gray-800 px-4 py-3 rounded-full"
+              >
+                Continue to form
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

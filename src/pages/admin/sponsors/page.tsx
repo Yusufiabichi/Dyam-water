@@ -1,8 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { distributeToOptions } from '../../../mocks/sponsors';
-
-const API_BASE_URL = 'http://localhost:4000/api';
+import { apiUrl } from '../../../lib/api';
 
 interface Sponsor {
   id: string;
@@ -34,8 +33,8 @@ const AdminSponsorsPage = () => {
       setLoading(true);
       try {
         const [healthRes, res] = await Promise.all([
-          fetch(`${API_BASE_URL}/health/db`),
-          fetch(`${API_BASE_URL}/sponsors`)
+          fetch(apiUrl('health/db')),
+          fetch(apiUrl('sponsors'))
         ]);
 
         setDbStatus(healthRes.ok ? 'connected' : 'disconnected');
@@ -62,7 +61,7 @@ const AdminSponsorsPage = () => {
         setSponsors(mapped);
         // Fetch transactions to compute totals
         try {
-          const tRes = await fetch(`${API_BASE_URL}/transactions`);
+          const tRes = await fetch(apiUrl('transactions'));
           if (tRes.ok) {
             const txRows = await tRes.json();
             const successful = (txRows || []).filter((t: any) => (t.status || '').toLowerCase() === 'success');
@@ -194,7 +193,7 @@ const AdminSponsorsPage = () => {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch(`${API_BASE_URL}/sponsors`, {
+      const res = await fetch(apiUrl('sponsors'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

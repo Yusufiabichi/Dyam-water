@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
+import { apiUrl } from '../../../lib/api';
 
 interface Transaction {
   id: string;
@@ -71,11 +72,11 @@ export default function TransactionsPage() {
       setLoading(true);
       try {
         // Fetch transactions and sponsors
-        const txnRes = await fetch('http://localhost:4000/api/transactions');
+        const txnRes = await fetch(apiUrl('transactions'));
         if (!txnRes.ok) throw new Error(`Failed to fetch transactions: ${txnRes.status}`);
         const txnRows = await txnRes.json();
 
-        const sponsorRes = await fetch('http://localhost:4000/api/sponsors');
+        const sponsorRes = await fetch(apiUrl('sponsors'));
         const sponsors = sponsorRes.ok ? await sponsorRes.json() : [];
         const sponsorMap = new Map(sponsors.map((s: any) => [s.id, s.full_name || '']));
 

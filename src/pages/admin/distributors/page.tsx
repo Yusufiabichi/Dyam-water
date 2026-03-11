@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { regionsData } from '../../../mocks/distributors';
+import { apiUrl } from '../../../lib/api';
 
 interface Distributor {
   id: string | number;
@@ -40,7 +41,7 @@ const AdminDistributorsPage = () => {
     const fetchDistributors = async () => {
       setLoading(true);
       try {
-        const res = await fetch('http://localhost:4000/api/distributors');
+        const res = await fetch(apiUrl('distributors'));
         if (!res.ok) throw new Error(`Status ${res.status}`);
         const rows = await res.json();
 

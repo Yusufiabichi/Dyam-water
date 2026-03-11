@@ -1,5 +1,6 @@
 
 import { Link } from 'react-router-dom';
+import { apiUrl } from '../../lib/api';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -8,16 +9,22 @@ const Footer = () => {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
+    const email = String(formData.get('email') || '').trim();
     
     try {
-      const response = await fetch('', {
+      const response = await fetch(apiUrl('messages'), {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
         },
-        body: new URLSearchParams(formData as any).toString(),
+        body: JSON.stringify({
+          full_name: 'Newsletter Subscriber',
+          email_address: email,
+          phone: 'N/A',
+          partnership_type: 'Newsletter',
+          message: 'Newsletter subscription request',
+        }),
       });
-      console.log(formData);
 
       if (response.ok) {
         const btn = form.querySelector('button[type="submit"]') as HTMLButtonElement;

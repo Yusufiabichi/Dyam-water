@@ -2,6 +2,7 @@ import Navbar from '../../components/feature/Navbar';
 import Footer from '../../components/feature/Footer';
 import SEOHead from '../../components/feature/SEOHead';
 import { useState } from 'react';
+import { apiUrl } from '../../lib/api';
 
 const ContactPage = () => {
   const [activeTab, setActiveTab] = useState<'distributor' | 'corporate' | 'institution' | 'charity'>('distributor');
@@ -26,17 +27,20 @@ const ContactPage = () => {
     setSubmitStatus('idle');
 
     try {
-      const formDataToSend = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        formDataToSend.append(key, value);
-      });
+      const payload = {
+        full_name: formData.name,
+        email_address: formData.email,
+        phone: formData.phone,
+        partnership_type: formData.partnershipType,
+        message: formData.message,
+      };
 
-      const response = await fetch('https://readdy.ai/api/form/', {
+      const response = await fetch(apiUrl('messages'), {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
         },
-        body: new URLSearchParams(formDataToSend as any).toString(),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {

@@ -22,21 +22,21 @@ const galleryImages = [
     src: "./ramadan-pic.png",
     caption: "Ramadan Iftar Support"
   },
-  {
-    id: 5,
-    src: "https://readdy.ai/api/search-image?query=Delivery%20truck%20with%20bottled%20water%20products%2C%20Nigerian%20distribution%20network%2C%20logistics%20and%20supply%20chain%2C%20branded%20vehicle%2C%20urban%20street%20scene%2C%20professional%20business%20photography%2C%20commercial%20fleet&width=600&height=400&seq=gallery-005&orientation=landscape",
-    caption: "Nationwide Distribution Network"
-  },
+  // {
+  //   id: 5,
+  //   src: "https://readdy.ai/api/search-image?query=Delivery%20truck%20with%20bottled%20water%20products%2C%20Nigerian%20distribution%20network%2C%20logistics%20and%20supply%20chain%2C%20branded%20vehicle%2C%20urban%20street%20scene%2C%20professional%20business%20photography%2C%20commercial%20fleet&width=600&height=400&seq=gallery-005&orientation=landscape",
+  //   caption: "Nationwide Distribution Network"
+  // },
   {
     id: 6,
     src: "https://readdy.ai/api/search-image?query=Nigerian%20orphanage%20children%20drinking%20clean%20bottled%20water%2C%20happy%20smiling%20faces%2C%20caring%20environment%2C%20bright%20daylight%2C%20charitable%20support%2C%20heartwarming%20moment%2C%20documentary%20photography%20style&width=600&height=400&seq=gallery-006&orientation=landscape",
     caption: "Supporting Orphanages"
   },
-  {
-    id: 7,
-    src: "https://readdy.ai/api/search-image?query=Premium%20bottled%20water%20products%20arranged%20beautifully%2C%20different%20sizes%20of%20water%20bottles%2C%20product%20display%2C%20clean%20white%20background%2C%20commercial%20product%20photography%2C%20brand%20showcase%2C%20professional%20lighting&width=600&height=400&seq=gallery-007&orientation=landscape",
-    caption: "Our Product Range"
-  },
+  // {
+  //   id: 7,
+  //   src: "https://readdy.ai/api/search-image?query=Premium%20bottled%20water%20products%20arranged%20beautifully%2C%20different%20sizes%20of%20water%20bottles%2C%20product%20display%2C%20clean%20white%20background%2C%20commercial%20product%20photography%2C%20brand%20showcase%2C%20professional%20lighting&width=600&height=400&seq=gallery-007&orientation=landscape",
+  //   caption: "Our Product Range"
+  // },
   {
     id: 8,
     src: "https://readdy.ai/api/search-image?query=Nigerian%20hospital%20staff%20receiving%20donated%20bottled%20water%2C%20healthcare%20workers%20grateful%2C%20medical%20facility%20background%2C%20charitable%20donation%20moment%2C%20documentary%20photography%2C%20professional%20healthcare%20environment&width=600&height=400&seq=gallery-008&orientation=landscape",

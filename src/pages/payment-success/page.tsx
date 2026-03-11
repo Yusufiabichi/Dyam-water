@@ -1,6 +1,7 @@
 ﻿import { useEffect, useMemo, useState } from 'react'
 import { Check, Download, Home, HelpCircle } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { apiUrl } from '../../lib/api'
 
 type VerificationStatus = 'loading' | 'success' | 'failed' | 'pending'
 
@@ -33,7 +34,7 @@ export default function PaymentSuccessPage() {
 
     const verify = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/api/transactions/verify/${encodeURIComponent(reference)}`)
+        const res = await fetch(apiUrl(`transactions/verify/${encodeURIComponent(reference)}`))
         if (!res.ok) {
           setStatus('failed')
           return

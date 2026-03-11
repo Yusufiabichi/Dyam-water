@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { apiUrl } from '../../../lib/api';
 
 type FrontTxn = {
   id: number | string;
@@ -21,7 +22,7 @@ const AdminDashboardPage = () => {
     const fetchTransactions = async () => {
       setLoading(true);
       try {
-        const res = await fetch('http://localhost:4000/api/transactions');
+        const res = await fetch(apiUrl('transactions'));
         if (!res.ok) throw new Error(`Status ${res.status}`);
         const rows = await res.json();
 
@@ -108,7 +109,7 @@ const AdminDashboardPage = () => {
         if (sponsorIds.length) {
           try {
             const sponsorFetches = sponsorIds.map((id) =>
-              fetch(`http://localhost:4000/api/sponsors/${id}`).then((r) => r.ok ? r.json() : null).catch(() => null)
+              fetch(apiUrl(`sponsors/${id}`)).then((r) => r.ok ? r.json() : null).catch(() => null)
             );
 
             const sponsors = await Promise.all(sponsorFetches);

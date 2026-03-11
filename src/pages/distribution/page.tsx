@@ -3,6 +3,7 @@ import Navbar from '../../components/feature/Navbar';
 import Footer from '../../components/feature/Footer';
 import SEOHead from '../../components/feature/SEOHead';
 import { useState } from 'react';
+import { apiUrl } from '../../lib/api';
 
 const DistributionPage = () => {
   const [formData, setFormData] = useState({
@@ -40,7 +41,7 @@ const DistributionPage = () => {
 
       console.log('Submitting distributor form:', payload);
 
-      const response = await fetch('http://localhost:4000/api/distributors', {
+      const response = await fetch(apiUrl('distributors'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

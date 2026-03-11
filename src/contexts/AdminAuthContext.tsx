@@ -1,5 +1,6 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode, useRef, useCallback } from 'react';
+import { BASEURL } from '../lib/api';
 
 interface AdminUser {
   email: string;
@@ -16,7 +17,7 @@ interface AdminAuthContextType {
 
 const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
 
-const API_BASE = (import.meta as any).env?.VITE_API_BASE || 'http://localhost:4000';
+const API_BASE = BASEURL;
 
 
 export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
